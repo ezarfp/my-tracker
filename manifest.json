@@ -1,15 +1,22 @@
 {
-  "name": "Personal Tracker - Keuangan & Tugas",
-  "short_name": "MyTracker",
+  "name": "Ezar Tracker - Keuangan & Tugas",
+  "short_name": "Ezar Tracker",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f8fafc",
+  "background_color": "#0f172a",
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2387/2387635.png",
+      "src": "./logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
