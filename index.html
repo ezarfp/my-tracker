@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#4f46e5" />
-  <title>Ezar Tracker Flagship</title>
+  <title>Ezar Tracker Ultimate</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -24,10 +24,7 @@
     @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-sheet { animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
     .privacy-mask { filter: blur(6px); user-select: none; transition: filter 0.2s ease; }
-    /* Sliding Pill Navbar */
-    #navPill {
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+    #navPill { transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 pb-28 max-w-md mx-auto min-h-screen shadow-2xl relative transition-colors duration-200">
@@ -37,7 +34,7 @@
     <div class="flex items-center gap-2.5">
       <img id="headerAvatar" src="./logo.png" alt="Logo" class="w-9 h-9 rounded-full object-cover shadow-sm ring-2 ring-indigo-500/30" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2387/2387635.png'" />
       <div>
-        <h1 class="font-extrabold text-sm text-slate-900 dark:text-white tracking-tight leading-tight">Ezar Tracker <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">PRO</span></h1>
+        <h1 class="font-extrabold text-sm text-slate-900 dark:text-white tracking-tight leading-tight">Ezar Tracker <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">v4.0</span></h1>
         <div id="netStatus" class="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Offline-First Ready</span>
@@ -72,7 +69,7 @@
         <span id="lastSyncLabel" class="text-[10px] text-slate-400 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full border border-slate-200/70 dark:border-slate-800">Belum sync</span>
       </div>
 
-      <!-- KARTU KEKAYAAN UTAMA (SULTAN CARD + PRIVACY BLUR) -->
+      <!-- KARTU KEKAYAAN UTAMA -->
       <div class="bg-gradient-to-br from-indigo-600 via-violet-700 to-slate-900 rounded-3xl p-5 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden">
         <div class="absolute -right-8 -top-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="flex justify-between items-start">
@@ -91,7 +88,7 @@
           </div>
         </div>
 
-        <!-- Mini Multi-Dompet Breakdown -->
+        <!-- Multi-Dompet Breakdown -->
         <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/15 text-[11px]">
           <div class="bg-black/20 rounded-xl p-2">
             <span class="text-indigo-200 text-[10px] block">💵 Tunai</span>
@@ -108,19 +105,19 @@
         </div>
       </div>
 
-      <!-- Aksi Cepat -->
+      <!-- Aksi Cepat (Termasuk Setor/Tarik Tunai) -->
       <div class="grid grid-cols-3 gap-2.5">
-        <button onclick="openUangModal()" class="flex flex-col items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 rounded-2xl font-bold text-[11px] shadow-sm active:scale-95 transition">
+        <button onclick="openUangModal(null, 'Pengeluaran')" class="flex flex-col items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 rounded-2xl font-bold text-[11px] shadow-sm active:scale-95 transition">
           <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
           <span>Catat Duit</span>
+        </button>
+        <button onclick="openUangModal(null, 'Transfer')" class="flex flex-col items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 rounded-2xl font-bold text-[11px] shadow-sm active:scale-95 transition">
+          <div class="w-8 h-8 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center"><i data-lucide="arrow-left-right" class="w-4 h-4"></i></div>
+          <span>Setor / Tarik</span>
         </button>
         <button onclick="openTugasModal()" class="flex flex-col items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 rounded-2xl font-bold text-[11px] shadow-sm active:scale-95 transition">
           <div class="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center"><i data-lucide="plus-circle" class="w-4 h-4"></i></div>
           <span>Tugas Baru</span>
-        </button>
-        <button onclick="switchTab('focus')" class="flex flex-col items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 rounded-2xl font-bold text-[11px] shadow-sm active:scale-95 transition">
-          <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="timer" class="w-4 h-4"></i></div>
-          <span>Focus Timer</span>
         </button>
       </div>
 
@@ -168,22 +165,21 @@
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200/50 dark:border-emerald-900/50">
-            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block font-semibold">Pemasukan Periode Ini</span>
+            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block font-semibold">Pemasukan Real</span>
             <span id="periodMasuk" class="font-extrabold text-sm text-emerald-700 dark:text-emerald-300 sensitive-val">Rp 0</span>
           </div>
           <div class="bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200/50 dark:border-rose-900/50">
-            <span class="text-[10px] text-rose-600 dark:text-rose-400 block font-semibold">Pengeluaran Periode Ini</span>
+            <span class="text-[10px] text-rose-600 dark:text-rose-400 block font-semibold">Pengeluaran Real</span>
             <span id="periodKeluar" class="font-extrabold text-sm text-rose-700 dark:text-rose-300 sensitive-val">Rp 0</span>
           </div>
         </div>
-        <!-- Grafik Donut -->
         <div class="h-40 flex items-center justify-center relative pt-1">
           <canvas id="expenseChart"></canvas>
           <p id="noChartData" class="hidden text-xs text-slate-400 absolute">Belum ada pengeluaran di bulan ini</p>
         </div>
       </div>
 
-      <!-- SAVINGS GOALS (CELENGAN IMPIAN) -->
+      <!-- SAVINGS GOALS -->
       <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
@@ -230,11 +226,10 @@
       <div id="tugasList" class="space-y-3"></div>
     </section>
 
-    <!-- ==================== TAB 4: FOCUS HUB (POMODORO + NOTES) ==================== -->
+    <!-- ==================== TAB 4: FOCUS HUB ==================== -->
     <section id="view-focus" class="hidden space-y-5">
       <h2 class="font-extrabold text-base">Student Focus Hub</h2>
 
-      <!-- Pomodoro Timer -->
       <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm text-center space-y-4">
         <div class="flex justify-center gap-2 text-xs font-bold">
           <button onclick="setPomodoroMode(25, 'Fokus Ngoding / Belajar')" id="pomoFocusBtn" class="px-3 py-1 rounded-full bg-indigo-600 text-white">Fokus 25m</button>
@@ -248,7 +243,6 @@
         </div>
       </div>
 
-      <!-- Quick Scratchpad / Catatan Cepat -->
       <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
@@ -260,11 +254,11 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 5: PROFIL & PENGATURAN ==================== -->
+    <!-- ==================== TAB 5: PROFIL & TWO-WAY SYNC RESTORE ==================== -->
     <section id="view-settings" class="hidden space-y-4">
-      <h2 class="font-extrabold text-base">Profil & Pengaturan</h2>
+      <h2 class="font-extrabold text-base">Profil & Pemulihan Data</h2>
 
-      <!-- Kartu Profil Kustom + Ganti Foto -->
+      <!-- Kartu Profil -->
       <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
         <div class="flex items-center gap-4">
           <div class="relative">
@@ -277,33 +271,47 @@
           <div class="flex-1 min-w-0">
             <h3 id="profileDisplayName" class="font-extrabold text-base truncate">Ezar Faad Pratama</h3>
             <p id="profileDisplayBio" class="text-xs text-slate-500 truncate">S1 Teknik Informatika • Telkom Univ</p>
-            <span class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">Flagship Edition v3.0</span>
+            <span class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">Ultimate Edition v4.0</span>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <input type="text" id="inputUserName" placeholder="Nama Lengkap (untuk PDF)" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
+          <input type="text" id="inputUserName" placeholder="Nama Lengkap" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
           <input type="text" id="inputUserBio" placeholder="Jurusan / Kampus" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
         </div>
         <button onclick="saveUserProfile()" class="w-full py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Simpan Profil</button>
       </div>
 
-      <!-- Limit Budget -->
+      <!-- Two-Way Sync & Restore (Anti Kehilangan Data saat Reinstall) -->
       <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2.5">
+        <h3 class="font-bold text-xs uppercase tracking-wider text-indigo-500">Cloud Sync & Restore (Anti-Reset)</h3>
+        <p class="text-[11px] text-slate-500 leading-relaxed">Gunakan fitur ini jika baru install ulang aplikasi atau ganti HP agar saldo dan tugas kembali utuh.</p>
+
+        <button onclick="pullFromSheets()" id="pullBtn" class="w-full py-2.5 px-3 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold flex items-center justify-between active:scale-95 transition">
+          <span>Tarik Data dari Google Sheets (Pull)</span>
+          <i data-lucide="cloud-download" class="w-4 h-4"></i>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="exportBackupJSON()" class="py-2.5 px-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-500"></i>
+            <span>Backup JSON</span>
+          </button>
+          <label class="py-2.5 px-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span>Restore JSON</span>
+            <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Limit Budget -->
+      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
         <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400">Target Budget Bulanan (Rp)</h3>
         <div class="flex gap-2">
           <input type="number" id="inputBudgetLimit" class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold" />
           <button onclick="saveBudgetLimit()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Simpan</button>
         </div>
-      </div>
-
-      <!-- Backup Data -->
-      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
-        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400">Cadangan Data</h3>
-        <button onclick="exportBackupJSON()" class="w-full py-2.5 px-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold flex items-center justify-between">
-          <span>Download Backup JSON</span>
-          <i data-lucide="download" class="w-4 h-4 text-indigo-500"></i>
-        </button>
       </div>
     </section>
 
@@ -312,7 +320,6 @@
   <!-- FLOATING GLASSMORPHISM NAVBAR + SLIDING PILL -->
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-[410px] z-30">
     <nav class="relative bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/70 rounded-full p-1.5 shadow-2xl shadow-slate-950/20 grid grid-cols-5 items-center">
-      <!-- Kapsul Indikator Geser -->
       <div id="navPill" class="absolute left-1.5 top-1.5 bottom-1.5 w-[calc(20%-2.4px)] bg-indigo-600 rounded-full shadow-md shadow-indigo-600/30 pointer-events-none"></div>
 
       <button onclick="switchTab('dashboard', 0)" id="nav-dashboard" class="relative z-10 flex flex-col items-center justify-center py-1.5 text-white transition-colors">
@@ -338,7 +345,7 @@
     </nav>
   </div>
 
-  <!-- MODAL TRANSAKSI KEUANGAN -->
+  <!-- MODAL TRANSAKSI KEUANGAN (3 JENIS: PENGELUARAN, PEMASUKAN, TRANSFER) -->
   <div id="modal-uang" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden flex items-end sm:items-center justify-center">
     <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-3 animate-sheet border-t dark:border-slate-800">
       <div class="flex justify-between items-center">
@@ -347,32 +354,52 @@
       </div>
       <form onsubmit="simpanKeuangan(event)" class="space-y-3">
         <input type="hidden" id="editUangId" />
-        <div class="grid grid-cols-2 gap-2">
+        <!-- 3 Pilihan Jenis -->
+        <div class="grid grid-cols-3 gap-1.5">
           <label class="cursor-pointer">
-            <input type="radio" name="jenis" value="Pengeluaran" checked class="peer hidden" />
-            <div class="text-center py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold peer-checked:bg-rose-50 dark:peer-checked:bg-rose-950/50 peer-checked:border-rose-500 peer-checked:text-rose-600 dark:peer-checked:text-rose-400">Pengeluaran</div>
+            <input type="radio" name="jenis" value="Pengeluaran" checked onchange="toggleJenisForm()" class="peer hidden" />
+            <div class="text-center py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] font-bold peer-checked:bg-rose-50 dark:peer-checked:bg-rose-950/50 peer-checked:border-rose-500 peer-checked:text-rose-600 dark:peer-checked:text-rose-400">Pengeluaran</div>
           </label>
           <label class="cursor-pointer">
-            <input type="radio" name="jenis" value="Pemasukan" class="peer hidden" />
-            <div class="text-center py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-950/50 peer-checked:border-emerald-500 peer-checked:text-emerald-600 dark:peer-checked:text-emerald-400">Pemasukan</div>
+            <input type="radio" name="jenis" value="Pemasukan" onchange="toggleJenisForm()" class="peer hidden" />
+            <div class="text-center py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] font-bold peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-950/50 peer-checked:border-emerald-500 peer-checked:text-emerald-600 dark:peer-checked:text-emerald-400">Pemasukan</div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="jenis" value="Transfer" onchange="toggleJenisForm()" class="peer hidden" />
+            <div class="text-center py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] font-bold peer-checked:bg-sky-50 dark:peer-checked:bg-sky-950/50 peer-checked:border-sky-500 peer-checked:text-sky-600 dark:peer-checked:text-sky-400">🔄 Transfer</div>
           </label>
         </div>
+
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-[11px] font-semibold text-slate-500">Nominal (Rp)</label>
-            <input type="number" id="uangNominal" required placeholder="15000" class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold" />
+            <input type="number" id="uangNominal" required placeholder="200000" class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold" />
           </div>
           <div>
-            <label class="text-[11px] font-semibold text-slate-500">Dompet / Akun</label>
+            <label class="text-[11px] font-semibold text-slate-500">Tanggal</label>
+            <input type="date" id="uangTanggal" required class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
+          </div>
+        </div>
+
+        <!-- Baris Dompet Asal & Tujuan (Dinamis saat Transfer) -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label id="labelDompetAsal" class="text-[11px] font-semibold text-slate-500">Dompet / Akun</label>
             <select id="uangDompet" class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold">
               <option value="Tunai">💵 Tunai</option>
               <option value="Bank">🏦 Bank / M-Banking</option>
               <option value="E-Wallet">📱 E-Wallet / QRIS</option>
             </select>
           </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
+          <div id="boxDompetTujuan" class="hidden">
+            <label class="text-[11px] font-semibold text-sky-500">Ke Dompet Tujuan</label>
+            <select id="uangDompetTujuan" class="w-full mt-1 px-3 py-2 bg-sky-50/50 dark:bg-slate-800 border border-sky-300 dark:border-sky-800 rounded-xl text-xs font-semibold">
+              <option value="Bank" selected>🏦 Bank / M-Banking</option>
+              <option value="Tunai">💵 Tunai</option>
+              <option value="E-Wallet">📱 E-Wallet / QRIS</option>
+            </select>
+          </div>
+          <div id="boxKategori">
             <label class="text-[11px] font-semibold text-slate-500">Kategori</label>
             <select id="uangKategori" class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold">
               <option value="Makan & Minum">Makan & Minum</option>
@@ -384,14 +411,11 @@
               <option value="Lainnya">Lainnya</option>
             </select>
           </div>
-          <div>
-            <label class="text-[11px] font-semibold text-slate-500">Tanggal</label>
-            <input type="date" id="uangTanggal" required class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
-          </div>
         </div>
+
         <div>
           <label class="text-[11px] font-semibold text-slate-500">Catatan</label>
-          <input type="text" id="uangCatatan" placeholder="Contoh: Ayam geprek / Transfer bulanan" class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
+          <input type="text" id="uangCatatan" placeholder="Contoh: Setor tunai ATM / Ayam geprek" class="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
         </div>
         <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white font-bold rounded-xl text-sm shadow-md">Simpan Transaksi</button>
       </form>
@@ -524,13 +548,11 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(ev) {
-        // Resize ringan via canvas agar muat di localStorage
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
           canvas.width = 200; canvas.height = 200;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, 200, 200);
+          canvas.getContext('2d').drawImage(img, 0, 0, 200, 200);
           userProfile.avatar = canvas.toDataURL('image/jpeg', 0.85);
           localStorage.setItem('ez_profile', JSON.stringify(userProfile));
           applyUserProfile();
@@ -541,22 +563,13 @@
       reader.readAsDataURL(file);
     }
 
-    // Privacy Blur
     function applyPrivacyState() {
-      document.querySelectorAll('.sensitive-val').forEach(el => {
-        el.classList.toggle('privacy-mask', isPrivacyOn);
-      });
+      document.querySelectorAll('.sensitive-val').forEach(el => el.classList.toggle('privacy-mask', isPrivacyOn));
       document.getElementById('privacyIcon').setAttribute('data-lucide', isPrivacyOn ? 'eye-off' : 'eye');
       lucide.createIcons();
     }
+    function togglePrivacy() { isPrivacyOn = !isPrivacyOn; localStorage.setItem('ez_privacy', isPrivacyOn); applyPrivacyState(); }
 
-    function togglePrivacy() {
-      isPrivacyOn = !isPrivacyOn;
-      localStorage.setItem('ez_privacy', isPrivacyOn);
-      applyPrivacyState();
-    }
-
-    // Dark Mode
     if (localStorage.getItem('ez_dark') === 'true') {
       document.documentElement.classList.add('dark');
       document.getElementById('themeIcon').setAttribute('data-lucide', 'sun');
@@ -568,12 +581,8 @@
       lucide.createIcons();
     }
 
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 
-    // Network Status
     function updateOnlineStatus() {
       const el = document.getElementById('netStatus');
       if (navigator.onLine) {
@@ -592,12 +601,10 @@
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 2600);
+      setTimeout(() => t.classList.add('hidden'), 2800);
     }
 
-    function formatRupiah(angka) {
-      return 'Rp ' + Number(angka).toLocaleString('id-ID');
-    }
+    function formatRupiah(angka) { return 'Rp ' + Number(angka).toLocaleString('id-ID'); }
 
     function saveLocal() {
       localStorage.setItem('ez_keuangan', JSON.stringify(dataKeuangan));
@@ -609,8 +616,16 @@
       renderAll();
     }
 
-    // --- KEUANGAN ---
-    function openUangModal(editId = null) {
+    // --- KEUANGAN & TRANSFER DOMPET ---
+    function toggleJenisForm() {
+      const jenis = document.querySelector('input[name="jenis"]:checked').value;
+      const isTransfer = jenis === 'Transfer';
+      document.getElementById('labelDompetAsal').textContent = isTransfer ? 'Dari Dompet (Asal)' : 'Dompet / Akun';
+      document.getElementById('boxDompetTujuan').classList.toggle('hidden', !isTransfer);
+      document.getElementById('boxKategori').classList.toggle('hidden', isTransfer);
+    }
+
+    function openUangModal(editId = null, defaultJenis = 'Pengeluaran') {
       document.getElementById('editUangId').value = editId || '';
       if (editId) {
         const item = dataKeuangan.find(k => k.id === editId);
@@ -618,15 +633,18 @@
         document.querySelector(`input[name="jenis"][value="${item.jenis}"]`).checked = true;
         document.getElementById('uangNominal').value = item.nominal;
         document.getElementById('uangDompet').value = item.dompet || 'Tunai';
+        document.getElementById('uangDompetTujuan').value = item.dompet_tujuan || 'Bank';
         document.getElementById('uangTanggal').value = item.tanggal;
         document.getElementById('uangKategori').value = item.kategori;
         document.getElementById('uangCatatan').value = item.catatan === '-' ? '' : item.catatan;
       } else {
-        document.getElementById('modalUangTitle').textContent = 'Catat Transaksi';
+        document.getElementById('modalUangTitle').textContent = defaultJenis === 'Transfer' ? 'Setor / Tarik Tunai' : 'Catat Transaksi';
+        document.querySelector(`input[name="jenis"][value="${defaultJenis}"]`).checked = true;
         document.getElementById('uangNominal').value = '';
         document.getElementById('uangTanggal').value = new Date().toISOString().split('T')[0];
         document.getElementById('uangCatatan').value = '';
       }
+      toggleJenisForm();
       document.getElementById('modal-uang').classList.remove('hidden');
     }
 
@@ -636,17 +654,24 @@
       const jenis = document.querySelector('input[name="jenis"]:checked').value;
       const nominal = Number(document.getElementById('uangNominal').value);
       const dompet = document.getElementById('uangDompet').value;
+      const dompet_tujuan = jenis === 'Transfer' ? document.getElementById('uangDompetTujuan').value : '';
       const tanggal = document.getElementById('uangTanggal').value;
-      const kategori = document.getElementById('uangKategori').value;
-      const catatan = document.getElementById('uangCatatan').value || '-';
+      const kategori = jenis === 'Transfer' ? 'Mutasi Dompet' : document.getElementById('uangKategori').value;
+      const defaultNote = jenis === 'Transfer' ? `${dompet} ke ${dompet_tujuan}` : '-';
+      const catatan = document.getElementById('uangCatatan').value.trim() || defaultNote;
+
+      if (jenis === 'Transfer' && dompet === dompet_tujuan) {
+        showToast('Dompet asal dan tujuan tidak boleh sama!');
+        return;
+      }
 
       if (editId) {
         const idx = dataKeuangan.findIndex(k => k.id === editId);
-        if (idx > -1) dataKeuangan[idx] = { ...dataKeuangan[idx], tanggal, jenis, kategori, nominal, catatan, dompet, isSynced: false };
+        if (idx > -1) dataKeuangan[idx] = { ...dataKeuangan[idx], tanggal, jenis, kategori, nominal, catatan, dompet, dompet_tujuan, isSynced: false };
         showToast('Transaksi diperbarui!');
       } else {
-        dataKeuangan.unshift({ id: 'trx-' + Date.now(), tanggal, jenis, kategori, nominal, catatan, dompet, isSynced: false });
-        showToast('Transaksi disimpan!');
+        dataKeuangan.unshift({ id: 'trx-' + Date.now(), tanggal, jenis, kategori, nominal, catatan, dompet, dompet_tujuan, isSynced: false });
+        showToast(jenis === 'Transfer' ? 'Mutasi dompet tercatat!' : 'Transaksi disimpan!');
       }
       closeModal('modal-uang');
       saveLocal();
@@ -676,10 +701,8 @@
       saveLocal();
       showToast('Target celengan dibuat!');
     }
-
     function tambahDanaGoal(id) {
-      const nominalStr = prompt('Masukkan nominal yang ingin ditabung ke target ini (Rp):');
-      const nom = Number(nominalStr);
+      const nom = Number(prompt('Masukkan nominal yang ingin ditabung ke target ini (Rp):'));
       if (!nom || nom <= 0) return;
       const g = dataGoals.find(item => item.id === id);
       if (g) {
@@ -688,13 +711,10 @@
         if (g.terkumpul >= g.target && typeof confetti === 'function') {
           confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
           showToast('🎉 Selamat! Target celengan tercapai!');
-        } else {
-          showToast(`+${formatRupiah(nom)} masuk ke ${g.nama_goal}!`);
-        }
+        } else showToast(`+${formatRupiah(nom)} masuk ke ${g.nama_goal}!`);
         saveLocal();
       }
     }
-
     function hapusGoal(id) {
       if (!confirm('Hapus target celengan ini?')) return;
       dataGoals = dataGoals.filter(g => g.id !== id);
@@ -702,7 +722,7 @@
       saveLocal();
     }
 
-    // --- EXPORT PDF INVOICE / STATEMENT BULANAN ---
+    // --- EXPORT PDF INVOICE BULANAN (TANPA DOUBLE COUNTING TRANSFER) ---
     async function downloadMonthlyInvoicePDF() {
       const bulanStr = document.getElementById('filterBulan').value;
       if (!bulanStr) { showToast('Pilih bulan terlebih dahulu!'); return; }
@@ -710,19 +730,14 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
-      // Header Banner Gelap Profesional
-      doc.setFillColor(30, 27, 75); // Indigo gelap
+      doc.setFillColor(30, 27, 75);
       doc.rect(0, 0, 210, 42, 'F');
 
-      // Coba masukkan logo.png
       try {
         const imgEl = document.getElementById('headerAvatar');
-        if (imgEl && imgEl.complete) {
-          doc.addImage(imgEl, 'PNG', 14, 9, 24, 24);
-        }
+        if (imgEl && imgEl.complete) doc.addImage(imgEl, 'PNG', 14, 9, 24, 24);
       } catch (e) {}
 
-      // Judul & Identitas
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
@@ -732,54 +747,44 @@
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(199, 210, 254);
       doc.text(`Account Holder: ${userProfile.name} (${userProfile.bio})`, 44, 25);
-      doc.text(`Statement Period: ${bulanStr}  |  Generated by Ezar Tracker Pro`, 44, 31);
+      doc.text(`Statement Period: ${bulanStr}  |  Generated by Ezar Tracker Ultimate`, 44, 31);
 
-      // Hitung Ringkasan Periode Tersebut
+      // Hitung Ringkasan (Transfer tidak dihitung sebagai Pemasukan/Pengeluaran)
       const listBulan = dataKeuangan.filter(k => k.tanggal.startsWith(bulanStr));
       let totMasuk = 0, totKeluar = 0, totTabung = 0;
       listBulan.forEach(k => {
+        if (k.jenis === 'Transfer') return;
         if (k.kategori === 'Tabungan') totTabung += k.nominal;
         else if (k.jenis === 'Pemasukan') totMasuk += k.nominal;
         else totKeluar += k.nominal;
       });
       const netCashflow = totMasuk - totKeluar;
 
-      // Kotak Ringkasan (Summary Boxes)
       doc.setTextColor(30, 41, 59);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('RINGKASAN ARUS KAS (CASHFLOW SUMMARY)', 14, 52);
+      doc.text('RINGKASAN ARUS KAS REAL (NON-TRANSFER)', 14, 52);
 
       doc.autoTable({
         startY: 55,
         head: [['Total Pemasukan', 'Total Pengeluaran', 'Setoran Tabungan', 'Selisih Bersih (Net)']],
-        body: [[
-          formatRupiah(totMasuk),
-          formatRupiah(totKeluar),
-          formatRupiah(totTabung),
-          formatRupiah(netCashflow)
-        ]],
+        body: [[formatRupiah(totMasuk), formatRupiah(totKeluar), formatRupiah(totTabung), formatRupiah(netCashflow)]],
         theme: 'grid',
         headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: 'bold', halign: 'center' },
         bodyStyles: { halign: 'center', fontStyle: 'bold', fontSize: 10 }
       });
 
-      // Tabel Rincian Mutasi Transaksi
-      doc.text(`RINCIAN TRANSAKSI BULAN ${bulanStr}`, 14, doc.lastAutoTable.finalY + 12);
+      doc.text(`RINCIAN MUTASI & TRANSAKSI BULAN ${bulanStr}`, 14, doc.lastAutoTable.finalY + 12);
 
-      const rows = listBulan.map((k, i) => [
-        i + 1,
-        k.tanggal,
-        k.jenis,
-        k.kategori,
-        k.dompet || 'Tunai',
-        k.catatan,
-        (k.jenis === 'Pemasukan' ? '+ ' : '- ') + formatRupiah(k.nominal)
-      ]);
+      const rows = listBulan.map((k, i) => {
+        const akunLabel = k.jenis === 'Transfer' ? `${k.dompet} -> ${k.dompet_tujuan}` : (k.dompet || 'Tunai');
+        const prefix = k.jenis === 'Transfer' ? '⇄ ' : (k.jenis === 'Pemasukan' ? '+ ' : '- ');
+        return [i + 1, k.tanggal, k.jenis, k.kategori, akunLabel, k.catatan, prefix + formatRupiah(k.nominal)];
+      });
 
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 15,
-        head: [['No', 'Tanggal', 'Jenis', 'Kategori', 'Dompet', 'Catatan', 'Nominal']],
+        head: [['No', 'Tanggal', 'Jenis', 'Kategori', 'Akun / Mutasi', 'Catatan', 'Nominal']],
         body: rows.length ? rows : [['-', '-', '-', 'Tidak ada transaksi pada periode ini', '-', '-', 'Rp 0']],
         theme: 'striped',
         headStyles: { fillColor: [30, 41, 59], textColor: 255, fontSize: 8 },
@@ -787,11 +792,9 @@
         columnStyles: { 6: { halign: 'right', fontStyle: 'bold' } }
       });
 
-      // Footer
-      const finalY = doc.lastAutoTable.finalY + 12;
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Dokumen ini dicetak otomatis oleh aplikasi Ezar Tracker pada ${new Date().toLocaleString('id-ID')}.`, 14, finalY);
+      doc.text(`*Transaksi berjenis Transfer (Setor/Tarik Tunai) dicatat sebagai mutasi internal dan tidak menggandakan arus kas.`, 14, doc.lastAutoTable.finalY + 10);
 
       doc.save(`Statement-EzarTracker-${bulanStr}.pdf`);
       showToast(`Invoice PDF ${bulanStr} berhasil diunduh!`);
@@ -857,9 +860,7 @@
         if (becomingDone) {
           if (typeof confetti === 'function') confetti({ particleCount: 75, spread: 65, origin: { y: 0.7 } });
           showToast('🎉 Mantap! Tugas selesai!');
-        } else {
-          showToast('Tugas dikembalikan ke Aktif');
-        }
+        } else showToast('Tugas dikembalikan ke Aktif');
       }
     }
 
@@ -891,9 +892,8 @@
       renderTugas();
     }
 
-    // --- POMODORO & QUICK NOTES ---
-    let pomoSeconds = 25 * 60;
-    let pomoInterval = null;
+    // --- POMODORO & NOTES ---
+    let pomoSeconds = 25 * 60, pomoInterval = null;
     function setPomodoroMode(mins, label) {
       clearInterval(pomoInterval); pomoInterval = null;
       pomoSeconds = mins * 60;
@@ -904,15 +904,11 @@
       updatePomoDisplay();
     }
     function updatePomoDisplay() {
-      const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
-      const s = String(pomoSeconds % 60).padStart(2, '0');
-      document.getElementById('pomoDisplay').textContent = `${m}:${s}`;
+      document.getElementById('pomoDisplay').textContent = `${String(Math.floor(pomoSeconds / 60)).padStart(2, '0')}:${String(pomoSeconds % 60).padStart(2, '0')}`;
     }
     function togglePomodoro() {
-      if (pomoInterval) {
-        clearInterval(pomoInterval); pomoInterval = null;
-        document.getElementById('pomoStartBtn').textContent = 'Lanjut';
-      } else {
+      if (pomoInterval) { clearInterval(pomoInterval); pomoInterval = null; document.getElementById('pomoStartBtn').textContent = 'Lanjut'; }
+      else {
         document.getElementById('pomoStartBtn').textContent = 'Jeda';
         pomoInterval = setInterval(() => {
           if (pomoSeconds > 0) { pomoSeconds--; updatePomoDisplay(); }
@@ -928,7 +924,7 @@
     function resetPomodoro() { setPomodoroMode(25, 'Fokus Ngoding / Belajar'); }
     function saveQuickNotes() { localStorage.setItem('ez_quick_notes', document.getElementById('quickNotesArea').value); }
 
-    // --- PENGATURAN & NOTIF ---
+    // --- BACKUP & RESTORE (TWO-WAY SYNC) ---
     function requestNotifPermission() {
       if (!('Notification' in window)) { showToast('Browser tidak mendukung notifikasi'); return; }
       Notification.requestPermission().then(perm => showToast(perm === 'granted' ? 'Pengingat aktif!' : 'Izin ditolak'));
@@ -946,8 +942,46 @@
       a.download = `EzarTracker-Backup-${new Date().toISOString().slice(0,10)}.json`;
       a.click();
     }
+    function importBackupJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (parsed.keuangan) dataKeuangan = parsed.keuangan;
+          if (parsed.tugas) dataTugas = parsed.tugas;
+          if (parsed.goals) dataGoals = parsed.goals;
+          saveLocal();
+          showToast('✅ Data berhasil dipulihkan dari file JSON!');
+        } catch (err) { showToast('File backup JSON tidak valid.'); }
+      };
+      reader.readAsText(file);
+    }
 
-    // --- SINKRONISASI GOOGLE SHEETS ---
+    async function pullFromSheets() {
+      if (!navigator.onLine) { showToast('Butuh koneksi internet untuk menarik data.'); return; }
+      if (SCRIPT_URL.includes("TEMPEL_URL")) { showToast('URL Apps Script belum dipasang!'); return; }
+      if (!confirm('Tarik semua data dari Google Sheets ke HP ini? Data lokal yang belum di-sync akan digantikan oleh data dari Sheets.')) return;
+
+      const btn = document.getElementById('pullBtn');
+      btn.querySelector('span').textContent = 'Sedang menarik data...';
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const result = await res.json();
+        if (result.status === 'success') {
+          dataKeuangan = result.keuangan || [];
+          dataTugas = result.tugas || [];
+          dataGoals = result.goals || [];
+          deletedKeuangan = []; deletedTugas = []; deletedGoals = [];
+          saveLocal();
+          showToast(`✅ Berhasil memulihkan ${dataKeuangan.length} transaksi & ${dataTugas.length} tugas!`);
+        } else showToast('Gagal menarik data: ' + result.message);
+      } catch (err) { showToast('Gagal terhubung ke Google Sheets.'); }
+      finally { btn.querySelector('span').textContent = 'Tarik Data dari Google Sheets (Pull)'; }
+    }
+
+    // --- PUSH SYNC ---
     function getUnsyncedCount() {
       return dataKeuangan.filter(k => !k.isSynced).length +
              dataTugas.filter(t => !t.isSynced).length +
@@ -1049,26 +1083,33 @@
       );
 
       document.getElementById('keuanganList').innerHTML = filtered.length
-        ? filtered.map(k => `
-          <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between gap-2">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-extrabold truncate">${k.kategori}</span>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">${k.dompet || 'Tunai'}</span>
-                ${k.isSynced ? '<i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>' : '<i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>'}
+        ? filtered.map(k => {
+          const isTransfer = k.jenis === 'Transfer';
+          const badgeText = isTransfer ? `${k.dompet} → ${k.dompet_tujuan}` : (k.dompet || 'Tunai');
+          const colorClass = isTransfer ? 'text-sky-500' : (k.kategori === 'Tabungan' ? 'text-amber-500' : (k.jenis === 'Pemasukan' ? 'text-emerald-500' : 'text-rose-500'));
+          const prefix = isTransfer ? '⇄ ' : (k.jenis === 'Pemasukan' ? '+' : '-');
+
+          return `
+            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between gap-2">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-extrabold truncate">${k.kategori}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">${badgeText}</span>
+                  ${k.isSynced ? '<i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>' : '<i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>'}
+                </div>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5">${k.catatan} • ${k.tanggal}</p>
               </div>
-              <p class="text-[11px] text-slate-500 truncate mt-0.5">${k.catatan} • ${k.tanggal}</p>
-            </div>
-            <div class="text-right shrink-0">
-              <span class="font-extrabold text-xs block sensitive-val ${k.kategori === 'Tabungan' ? 'text-amber-500' : (k.jenis === 'Pemasukan' ? 'text-emerald-500' : 'text-rose-500')}">
-                ${k.jenis === 'Pemasukan' ? '+' : '-'}${formatRupiah(k.nominal)}
-              </span>
-              <div class="flex justify-end gap-2 mt-1 text-slate-400">
-                <button onclick="openUangModal('${k.id}')" class="hover:text-indigo-500"><i data-lucide="pencil" class="w-3 h-3"></i></button>
-                <button onclick="hapusKeuangan('${k.id}')" class="hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+              <div class="text-right shrink-0">
+                <span class="font-extrabold text-xs block sensitive-val ${colorClass}">
+                  ${prefix}${formatRupiah(k.nominal)}
+                </span>
+                <div class="flex justify-end gap-2 mt-1 text-slate-400">
+                  <button onclick="openUangModal('${k.id}')" class="hover:text-indigo-500"><i data-lucide="pencil" class="w-3 h-3"></i></button>
+                  <button onclick="hapusKeuangan('${k.id}')" class="hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
               </div>
-            </div>
-          </div>`).join('')
+            </div>`;
+        }).join('')
         : `<div class="text-center py-8 text-xs text-slate-400">Tidak ada transaksi pada periode ini.</div>`;
       applyPrivacyState();
       lucide.createIcons();
@@ -1149,8 +1190,21 @@
 
       dataKeuangan.forEach(k => {
         const d = k.dompet || 'Tunai';
-        const sign = k.jenis === 'Pemasukan' ? 1 : -1;
 
+        if (k.jenis === 'Transfer') {
+          // Kurangi dompet asal, tambah dompet tujuan (tidak masuk pemasukan/pengeluaran bulanan)
+          if (d === 'Bank') balBank -= k.nominal;
+          else if (d === 'E-Wallet') balEwallet -= k.nominal;
+          else balTunai -= k.nominal;
+
+          const dest = k.dompet_tujuan || 'Bank';
+          if (dest === 'Bank') balBank += k.nominal;
+          else if (dest === 'E-Wallet') balEwallet += k.nominal;
+          else balTunai += k.nominal;
+          return;
+        }
+
+        const sign = k.jenis === 'Pemasukan' ? 1 : -1;
         if (k.kategori === 'Tabungan') {
           totalTabungan += k.nominal;
         } else {
@@ -1175,7 +1229,6 @@
       document.getElementById('periodMasuk').textContent = formatRupiah(periodMasuk);
       document.getElementById('periodKeluar').textContent = formatRupiah(periodKeluar);
 
-      // Budget Bar
       const pct = Math.min(100, Math.round((keluarBulanIni / budgetLimit) * 100));
       const bar = document.getElementById('budgetBar');
       bar.style.width = pct + '%';
@@ -1183,7 +1236,6 @@
       document.getElementById('budgetText').textContent = `${formatRupiah(keluarBulanIni)} / ${formatRupiah(budgetLimit)}`;
       document.getElementById('budgetHint').textContent = pct >= 100 ? '⚠️ Melewati batas budget bulanan!' : `Terpakai ${pct}% dari limit bulanan.`;
 
-      // Dashboard Tugas
       const pendingSorted = [...dataTugas].filter(t => t.status === 'Pending').sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
       document.getElementById('dashTugasList').innerHTML = pendingSorted.length
         ? pendingSorted.slice(0, 2).map(renderTugasCard).join('')
@@ -1198,26 +1250,20 @@
       lucide.createIcons();
     }
 
-    // Sliding Pill Tab Switcher
     const tabOrder = ['dashboard', 'keuangan', 'tugas', 'focus', 'settings'];
     function switchTab(tab, idx = null) {
       const tabIndex = idx !== null ? idx : tabOrder.indexOf(tab);
       document.getElementById('navPill').style.transform = `translateX(${tabIndex * 100}%)`;
-
       tabOrder.forEach((t, i) => {
         document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
-        const nav = document.getElementById('nav-' + t);
-        if (i === tabIndex) {
-          nav.className = 'relative z-10 flex flex-col items-center justify-center py-1.5 text-white transition-colors';
-        } else {
-          nav.className = 'relative z-10 flex flex-col items-center justify-center py-1.5 text-slate-500 dark:text-slate-400 transition-colors';
-        }
+        document.getElementById('nav-' + t).className = i === tabIndex
+          ? 'relative z-10 flex flex-col items-center justify-center py-1.5 text-white transition-colors'
+          : 'relative z-10 flex flex-col items-center justify-center py-1.5 text-slate-500 dark:text-slate-400 transition-colors';
       });
     }
 
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // Init
     applyUserProfile();
     updateOnlineStatus();
     renderAll();
