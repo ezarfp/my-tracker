@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ezar-tracker-v4';
+const CACHE_NAME = 'ezar-tracker-v5';
 const ASSETS = [
   './',
   './index.html',
