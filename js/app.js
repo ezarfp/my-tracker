@@ -9,6 +9,10 @@ function switchTab(tabName) {
       ? 'nav-btn flex flex-col items-center justify-center py-2 px-3 rounded-2xl bg-indigo-600 text-white shadow-md transition'
       : 'nav-btn flex flex-col items-center justify-center py-2 px-3 rounded-2xl text-slate-500 dark:text-slate-400 transition';
   });
+
+  if (tabName === 'duit' && typeof renderChartsKeuangan === 'function') {
+    setTimeout(() => renderChartsKeuangan(), 50);
+  }
   lucide.createIcons();
 }
 
@@ -45,6 +49,7 @@ function showToast(msg) {
 function toggleDarkMode() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('ezar_dark_mode', isDark);
+  if (typeof renderChartsKeuangan === 'function') renderChartsKeuangan();
   lucide.createIcons();
 }
 
@@ -78,7 +83,6 @@ function applyUserProfile() {
   const profJurusan = document.getElementById('profileDisplayJurusan');
   if (profJurusan) profJurusan.textContent = `${userProfile.jurusan} • ${userProfile.kelas}`;
 
-  // Isi Input Form Profil
   const inNama = document.getElementById('inputProfNama');
   if (inNama) {
     inNama.value = userProfile.nama;
