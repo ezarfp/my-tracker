@@ -155,7 +155,7 @@ function uploadFotoProfil(e) {
 }
 
 // ==========================================
-// POMODORO FOCUS TIMER
+// POMODORO FOCUS TIMER & SCRATCHPAD NOTES
 // ==========================================
 let pomoSeconds = 25 * 60;
 let pomoInterval = null;
@@ -194,6 +194,35 @@ function resetPomodoro() {
   updatePomoDisplay();
 }
 
+function loadCatatanFokus() {
+  const box = document.getElementById('focusNotesInput');
+  if (box) box.value = localStorage.getItem('ezar_focus_notes') || '';
+}
+
+function simpanCatatanFokus() {
+  const box = document.getElementById('focusNotesInput');
+  if (box) localStorage.setItem('ezar_focus_notes', box.value);
+}
+
+function salinCatatanFokus() {
+  const box = document.getElementById('focusNotesInput');
+  if (!box || !box.value.trim()) {
+    showToast('Catatan masih kosong.');
+    return;
+  }
+  navigator.clipboard.writeText(box.value);
+  showToast('Catatan berhasil disalin ke clipboard!');
+}
+
+function hapusCatatanFokus() {
+  const box = document.getElementById('focusNotesInput');
+  if (!box || !box.value.trim()) return;
+  if (!confirm('Bersihkan seluruh isi catatan cepat ini?')) return;
+  box.value = '';
+  localStorage.removeItem('ezar_focus_notes');
+  showToast('Catatan dibersihkan.');
+}
+
 // ==========================================
 // ONLINE / OFFLINE & MASTER RENDER
 // ==========================================
@@ -227,5 +256,6 @@ function renderAll() {
 }
 
 applyUserProfile();
+loadCatatanFokus();
 updateOnlineStatus();
 renderAll();

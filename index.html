@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Ezar Tracker v7.1</title>
+  <title>Ezar Tracker v7.2</title>
   <meta name="theme-color" content="#4f46e5" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon.png" />
@@ -31,7 +31,7 @@
         <div>
           <div class="flex items-center gap-1.5">
             <h1 class="font-extrabold text-sm tracking-tight">Ezar Tracker</h1>
-            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">v7.1</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">v7.2</span>
           </div>
           <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
             <span id="onlineDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -308,8 +308,8 @@
         <div id="nilaiList" class="space-y-2.5"></div>
       </div>
 
-      <!-- SUB 4: FOCUS POMODORO -->
-      <div id="sub-focus" class="sub-kuliah hidden">
+      <!-- SUB 4: FOCUS POMODORO & CATATAN CEPAT -->
+      <div id="sub-focus" class="sub-kuliah hidden space-y-3">
         <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 text-center space-y-4">
           <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600">Deep Work Pomodoro</span>
           <h3 id="pomoTimerDisplay" class="text-5xl font-black tracking-tight tabular-nums">25:00</h3>
@@ -319,6 +319,21 @@
             <button onclick="pausePomodoro()" class="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 text-xs font-extrabold">Jeda</button>
             <button onclick="resetPomodoro()" class="px-4 py-2.5 rounded-2xl bg-slate-200 dark:bg-slate-800 text-xs font-bold">Reset</button>
           </div>
+        </div>
+
+        <!-- SCRATCHPAD / CATATAN CEPAT -->
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h4 class="font-extrabold text-xs flex items-center gap-1.5">
+              <i data-lucide="notebook-pen" class="w-4 h-4 text-indigo-500"></i>
+              <span>Catatan Cepat & Ide (Auto-Save)</span>
+            </h4>
+            <div class="flex items-center gap-1.5">
+              <button onclick="salinCatatanFokus()" class="px-2.5 py-1 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-extrabold">Salin</button>
+              <button onclick="hapusCatatanFokus()" class="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-500 text-[10px] font-extrabold">Bersihkan</button>
+            </div>
+          </div>
+          <textarea id="focusNotesInput" oninput="simpanCatatanFokus()" rows="5" placeholder="Tulis rumus singkat, poin materi kuliah, daftar perintah, atau ide ngoding di sini... Otomatis tersimpan!" class="w-full p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/80 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
         </div>
       </div>
     </section>
@@ -381,7 +396,7 @@
 
       <!-- CLOUD SYNC & BACKUP -->
       <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
-        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Cloud Sync & Restore (v7.1)</p>
+        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Cloud Sync & Restore (v7.2)</p>
         <button onclick="pullFromCloud()" class="w-full py-3 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-extrabold flex items-center justify-center gap-2">
           <i data-lucide="cloud-download" class="w-4 h-4"></i> Tarik Semua Data dari Google Sheets (Pull)
         </button>
