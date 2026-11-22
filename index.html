@@ -3,22 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Ezar Tracker v7.0</title>
+  <title>Ezar Tracker v7.1</title>
   <meta name="theme-color" content="#4f46e5" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: '#4f46e5'
-          }
-        }
-      }
+      theme: { extend: { colors: { brand: '#4f46e5' } } }
     };
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -30,11 +27,11 @@
   <header class="sticky top-0 z-30 bg-slate-100/85 dark:bg-slate-950/85 backdrop-blur-md border-b border-slate-200/70 dark:border-slate-800/80 px-4 py-3">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-md">ET</div>
+        <img src="./icon.png" onerror="this.style.display='none'" class="w-9 h-9 rounded-2xl object-cover shadow-md" alt="Logo" />
         <div>
           <div class="flex items-center gap-1.5">
             <h1 class="font-extrabold text-sm tracking-tight">Ezar Tracker</h1>
-            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">v7.0</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">v7.1</span>
           </div>
           <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
             <span id="onlineDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -46,6 +43,7 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <button id="btnInstallApp" onclick="triggerInstallPWA()" class="hidden px-2.5 py-2 rounded-2xl bg-emerald-600 text-white text-[11px] font-extrabold shadow-sm">Install</button>
         <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 shadow-sm active:scale-95 transition">
           <i data-lucide="moon" class="w-4 h-4"></i>
         </button>
@@ -170,13 +168,25 @@
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-lg font-extrabold">Keuangan & Brankas</h2>
-          <p class="text-xs text-slate-400">Kelola arus kas, tabungan & patungan</p>
+          <p class="text-xs text-slate-400">Kelola arus kas, grafik & tabungan</p>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="exportKeuanganPDF()" class="px-3 py-2 rounded-2xl bg-emerald-600 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-sm">
             <i data-lucide="file-down" class="w-3.5 h-3.5"></i> PDF
           </button>
           <button onclick="openTransaksiModal('Pengeluaran')" class="px-3 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-extrabold shadow-sm">+ Catat</button>
+        </div>
+      </div>
+
+      <!-- GRAFIK ANALITIK KEUANGAN (BULANAN & DONAT KATEGORI) -->
+      <div class="grid grid-cols-1 gap-3">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h3 class="font-extrabold text-xs text-slate-500 uppercase tracking-wider mb-2">Grafik Arus Kas Bulanan</h3>
+          <div class="h-44"><canvas id="chartBulanan"></canvas></div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h3 class="font-extrabold text-xs text-slate-500 uppercase tracking-wider mb-2">Proporsi Pengeluaran per Kategori</h3>
+          <div class="h-48 flex items-center justify-center"><canvas id="chartKategori"></canvas></div>
         </div>
       </div>
 
@@ -371,7 +381,7 @@
 
       <!-- CLOUD SYNC & BACKUP -->
       <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
-        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Cloud Sync & Restore (v7.0)</p>
+        <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Cloud Sync & Restore (v7.1)</p>
         <button onclick="pullFromCloud()" class="w-full py-3 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-extrabold flex items-center justify-center gap-2">
           <i data-lucide="cloud-download" class="w-4 h-4"></i> Tarik Semua Data dari Google Sheets (Pull)
         </button>
@@ -423,7 +433,7 @@
     </div>
   </nav>
 
-  <!-- ==================== MODALS DENGAN FULL PLACEHOLDERS ==================== -->
+  <!-- ==================== MODALS ==================== -->
 
   <!-- MODAL TRANSAKSI -->
   <div id="modal-transaksi" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end justify-center">
@@ -688,7 +698,7 @@
     </div>
   </div>
 
-  <!-- MODAL TAMBAH MATKUL IPK (DENGAN CUSTOM BOBOT) -->
+  <!-- MODAL TAMBAH MATKUL IPK -->
   <div id="modal-nilai" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end justify-center">
     <div class="modal-sheet bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl p-5 space-y-4">
       <div class="flex items-center justify-between">
@@ -774,5 +784,27 @@
   <script src="./js/routine.js"></script>
   <script src="./js/pdf.js"></script>
   <script src="./js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('btnInstallApp');
+      if (btn) btn.classList.remove('hidden');
+    });
+    function triggerInstallPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => {
+        deferredPrompt = null;
+        document.getElementById('btnInstallApp').classList.add('hidden');
+      });
+    }
+  </script>
 </body>
 </html>

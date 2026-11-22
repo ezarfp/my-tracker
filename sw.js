@@ -1,29 +1,14 @@
-const CACHE_NAME = 'ezar-tracker-v6';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './logo.png',
-  './css/style.css',
-  './js/config.js',
-  './js/storage.js',
-  './js/finance.js',
-  './js/academic.js',
-  './js/routine.js',
-  './js/pdf.js',
-  './js/app.js'
-];
+const CACHE_NAME = 'ezar-tracker-v7.1';
+const ASSETS = ['./', './index.html', './css/style.css', './js/config.js', './js/storage.js', './js/finance.js', './js/academic.js', './js/routine.js', './js/pdf.js', './js/app.js', './manifest.json', './icon.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
   self.skipWaiting();
+  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {}));
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
   );
   self.clients.claim();
 });
@@ -31,6 +16,6 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request).catch(() => caches.match('./index.html')))
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });

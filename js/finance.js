@@ -1,3 +1,6 @@
+let chartBulananInstance = null;
+let chartKategoriInstance = null;
+
 function formatRupiah(angka) {
   return 'Rp ' + Number(angka || 0).toLocaleString('id-ID');
 }
@@ -275,6 +278,84 @@ function hapusPiutang(id) {
   saveLocal();
 }
 
+// ==========================================
+// GRAFIK ANALITIK KEUANGAN (CHART.JS)
+// ==========================================
+function renderChartsKeuangan() {
+  if (typeof Chart === 'undefined') return;
+  const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+
+  // 1. Grafik Arus Kas Bulanan (6 Bulan Terakhir)
+  const monthlyMap = {};
+  dataKeuangan.forEach(tx => {
+    if (tx.kategori === 'Transfer Keluar' || tx.kategori === 'Transfer Masuk') return;
+    const ym = normalizeDateStr(tx.tanggal).slice(0, 7);
+    if (!monthlyMap[ym]) monthlyMap[ym] = { in: 0, out: 0 };
+    if (tx.jenis === 'Pemasukan') monthlyMap[ym].in += Number(tx.nominal) || 0;
+    else monthlyMap[ym].out += Number(tx.nominal) || 0;
+  });
+
+  const sortedMonths = Object.keys(monthlyMap).sort().slice(-6);
+  const ctxBulanan = document.getElementById('chartBulanan');
+  if (ctxBulanan) {
+    if (chartBulananInstance) chartBulananInstance.destroy();
+    chartBulananInstance = new Chart(ctxBulanan, {
+      type: 'bar',
+      data: {
+        labels: sortedMonths.length ? sortedMonths : [getTodayDateStr().slice(0, 7)],
+        datasets: [
+          { label: 'Pemasukan', data: sortedMonths.map(m => monthlyMap[m].in), backgroundColor: '#10b981', borderRadius: 6 },
+          { label: 'Pengeluaran', data: sortedMonths.map(m => monthlyMap[m].out), backgroundColor: '#f43f5e', borderRadius: 6 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: textColor, font: { size: 10, weight: 'bold' } } } },
+        scales: {
+          x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false } },
+          y: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: isDark ? '#1e293b' : '#f1f5f9' } }
+        }
+      }
+    });
+  }
+
+  // 2. Grafik Donat Pengeluaran per Kategori
+  const katMap = {};
+  dataKeuangan.forEach(tx => {
+    if (tx.jenis === 'Pengeluaran' && tx.kategori !== 'Transfer Keluar') {
+      katMap[tx.kategori] = (katMap[tx.kategori] || 0) + (Number(tx.nominal) || 0);
+    }
+  });
+
+  const katLabels = Object.keys(katMap);
+  const ctxKategori = document.getElementById('chartKategori');
+  if (ctxKategori) {
+    if (chartKategoriInstance) chartKategoriInstance.destroy();
+    chartKategoriInstance = new Chart(ctxKategori, {
+      type: 'doughnut',
+      data: {
+        labels: katLabels.length ? katLabels : ['Belum ada pengeluaran'],
+        datasets: [{
+          data: katLabels.length ? katLabels.map(k => katMap[k]) : [1],
+          backgroundColor: ['#4f46e5', '#f43f5e', '#f59e0b', '#10b981', '#8b5cf6', '#06b6d4'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: { legend: { position: 'right', labels: { color: textColor, font: { size: 10, weight: 'bold' }, boxWidth: 10 } } }
+      }
+    });
+  }
+}
+
+// ==========================================
+// MASTER RENDER KEUANGAN
+// ==========================================
 function renderKeuangan() {
   let saldoTunai = 0, saldoBank = 0, saldoEwallet = 0, brankas = 0;
   const bulanIni = getTodayDateStr().slice(0, 7);
@@ -390,4 +471,6 @@ function renderKeuangan() {
       }).join('')
       : `<div class="text-center py-6 text-xs text-slate-400">Belum ada riwayat transaksi pada filter ini.</div>`;
   }
+
+  renderChartsKeuangan();
 }
