@@ -1,13 +1,14 @@
 function openPdfKeuanganModal() {
+  const modal = document.getElementById('modal-pdf-keuangan');
   const select = document.getElementById('pdfBulanSelect');
-  if (!select) {
+  if (!modal || !select) {
     exportKeuanganPDF('ALL');
     return;
   }
 
   const bulanSet = new Set();
   bulanSet.add(getTodayDateStr().slice(0, 7));
-  dataKeuangan.forEach(tx => {
+  (dataKeuangan || []).forEach(tx => {
     const ym = normalizeDateStr(tx.tanggal).slice(0, 7);
     if (/^\d{4}-\d{2}$/.test(ym)) bulanSet.add(ym);
   });
@@ -20,7 +21,7 @@ function openPdfKeuanganModal() {
     return `<option value="${ym}">${namaBulan[Number(m) - 1]} ${y}</option>`;
   }).join('') + `<option value="ALL">Semua Riwayat Transaksi (Full)</option>`;
 
-  document.getElementById('modal-pdf-keuangan').classList.remove('hidden');
+  modal.classList.remove('hidden');
 }
 
 function prosesExportKeuanganPDF(e) {
@@ -31,6 +32,10 @@ function prosesExportKeuanganPDF(e) {
 }
 
 function exportKeuanganPDF(periode = 'ALL') {
+  if (!window.jspdf) {
+    showToast('Library PDF belum termuat. Cek koneksi internet!');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const { label: tzLabel } = getActiveTimezoneConfig();
@@ -102,6 +107,10 @@ function exportKeuanganPDF(periode = 'ALL') {
 }
 
 function exportJadwalPDF() {
+  if (!window.jspdf) {
+    showToast('Library PDF belum termuat!');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const { label: tzLabel } = getActiveTimezoneConfig();
@@ -142,6 +151,10 @@ function exportJadwalPDF() {
 }
 
 function exportTranskripPDF() {
+  if (!window.jspdf) {
+    showToast('Library PDF belum termuat!');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 

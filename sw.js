@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ezar-tracker-v7.1';
+const CACHE_NAME = 'ezar-tracker-v7.2';
 const ASSETS = ['./', './index.html', './css/style.css', './js/config.js', './js/storage.js', './js/finance.js', './js/academic.js', './js/routine.js', './js/pdf.js', './js/app.js', './manifest.json', './icon.png'];
 
 self.addEventListener('install', (e) => {
