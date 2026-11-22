@@ -457,7 +457,11 @@
   </div>
 
   <!-- MODULAR SCRIPTS -->
-  <script></script>
+  <script>
+  window.onerror = function(msg, url, line) {
+    alert("Error: " + msg + "\nFile: " + url + "\nBaris: " + line);
+  };
+  </script>
   <script src="./js/config.js"></script>
   <script src="./js/storage.js"></script>
   <script src="./js/finance.js"></script>
