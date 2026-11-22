@@ -1,284 +1,393 @@
-let expenseChartInstance = null;
-let trendChartInstance = null;
-
-function toggleJenisForm() {
-  const jenis = document.querySelector('input[name="jenis"]:checked').value;
-  const isTransfer = jenis === 'Transfer';
-  document.getElementById('labelDompetAsal').textContent = isTransfer ? 'Dari Dompet (Asal)' : 'Dompet / Akun';
-  document.getElementById('boxDompetTujuan').classList.toggle('hidden', !isTransfer);
-  document.getElementById('boxKategori').classList.toggle('hidden', isTransfer);
+function formatRupiah(angka) {
+  return 'Rp ' + Number(angka || 0).toLocaleString('id-ID');
 }
 
-function openUangModal(editId = null, defaultJenis = 'Pengeluaran') {
-  document.getElementById('editUangId').value = editId || '';
-  if (editId) {
-    const item = dataKeuangan.find(k => k.id === editId);
-    document.getElementById('modalUangTitle').textContent = 'Edit Transaksi';
-    document.querySelector(`input[name="jenis"][value="${item.jenis}"]`).checked = true;
-    document.getElementById('uangNominal').value = item.nominal;
-    document.getElementById('uangDompet').value = item.dompet || 'Tunai';
-    document.getElementById('uangDompetTujuan').value = item.dompet_tujuan || 'Bank';
-    document.getElementById('uangTanggal').value = item.tanggal;
-    document.getElementById('uangKategori').value = item.kategori;
-    document.getElementById('uangCatatan').value = item.catatan === '-' ? '' : item.catatan;
+function toggleHideSaldo() {
+  hideSaldo = !hideSaldo;
+  localStorage.setItem('ezar_hide_saldo', hideSaldo);
+  renderKeuangan();
+}
+
+function setFilterKeu(tipe) {
+  filterTipeKeu = tipe;
+  document.querySelectorAll('.filter-keu-btn').forEach(btn => {
+    const active = btn.dataset.filter === tipe;
+    btn.className = active
+      ? 'filter-keu-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm'
+      : 'filter-keu-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+  });
+  renderKeuangan();
+}
+
+function setFilterAkun(akun) {
+  filterAkunKeu = akun;
+  renderKeuangan();
+}
+
+function openTransaksiModal(jenis = 'Pengeluaran') {
+  document.getElementById('formTransaksi').reset();
+  document.getElementById('txEditId').value = '';
+  document.getElementById('txTanggal').value = getTodayDateStr();
+  setJenisTransaksi(jenis);
+  document.getElementById('modal-transaksi').classList.remove('hidden');
+}
+
+function setJenisTransaksi(jenis) {
+  document.getElementById('txJenis').value = jenis;
+  const tabs = ['Pengeluaran', 'Pemasukan', 'Transfer'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tabTx' + t);
+    if (!btn) return;
+    if (t === jenis) {
+      const color = t === 'Pengeluaran' ? 'border-rose-500 text-rose-500 bg-rose-500/10'
+        : t === 'Pemasukan' ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10'
+        : 'border-indigo-500 text-indigo-500 bg-indigo-500/10';
+      btn.className = `flex-1 py-2.5 rounded-xl border-2 text-xs font-extrabold transition ${color}`;
+    } else {
+      btn.className = 'flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-500 transition';
+    }
+  });
+
+  const wrapNormal = document.getElementById('wrapAkunNormal');
+  const wrapTransfer = document.getElementById('wrapAkunTransfer');
+  const inputNominal = document.getElementById('txNominal');
+  const inputCatatan = document.getElementById('txCatatan');
+
+  if (jenis === 'Transfer') {
+    wrapNormal.classList.add('hidden');
+    wrapTransfer.classList.remove('hidden');
+    inputNominal.placeholder = 'Contoh: 50000 (tanpa titik)';
+    inputCatatan.placeholder = 'Contoh: Tarik tunai ATM / Setor ke Bank';
+  } else if (jenis === 'Pemasukan') {
+    wrapNormal.classList.remove('hidden');
+    wrapTransfer.classList.add('hidden');
+    document.getElementById('txKategori').value = 'Uang Saku / Pemasukan';
+    inputNominal.placeholder = 'Contoh: 250000 (tanpa titik)';
+    inputCatatan.placeholder = 'Contoh: Uang saku bulanan / Fee project';
   } else {
-    document.getElementById('modalUangTitle').textContent = defaultJenis === 'Transfer' ? 'Setor / Tarik Tunai' : 'Catat Transaksi';
-    document.querySelector(`input[name="jenis"][value="${defaultJenis}"]`).checked = true;
-    document.getElementById('uangNominal').value = '';
-    document.getElementById('uangTanggal').value = new Date().toISOString().split('T')[0];
-    document.getElementById('uangCatatan').value = '';
+    wrapNormal.classList.remove('hidden');
+    wrapTransfer.classList.add('hidden');
+    document.getElementById('txKategori').value = 'Makan & Minum';
+    inputNominal.placeholder = 'Contoh: 15000 (tanpa titik)';
+    inputCatatan.placeholder = 'Contoh: Makan siang ayam geprek / Bensin';
   }
-  toggleJenisForm();
-  document.getElementById('modal-uang').classList.remove('hidden');
 }
 
-function simpanKeuangan(e) {
+function simpanTransaksi(e) {
   e.preventDefault();
-  const editId = document.getElementById('editUangId').value;
-  const jenis = document.querySelector('input[name="jenis"]:checked').value;
-  const nominal = Number(document.getElementById('uangNominal').value);
-  const dompet = document.getElementById('uangDompet').value;
-  const dompet_tujuan = jenis === 'Transfer' ? document.getElementById('uangDompetTujuan').value : '';
-  const tanggal = document.getElementById('uangTanggal').value;
-  const kategori = jenis === 'Transfer' ? 'Mutasi Dompet' : document.getElementById('uangKategori').value;
-  const catatan = document.getElementById('uangCatatan').value.trim() || (jenis === 'Transfer' ? `${dompet} ke ${dompet_tujuan}` : '-');
+  const editId = document.getElementById('txEditId').value;
+  const jenis = document.getElementById('txJenis').value;
+  const nominal = Number(document.getElementById('txNominal').value);
+  const tanggal = normalizeDateStr(document.getElementById('txTanggal').value || getTodayDateStr());
+  const catatan = document.getElementById('txCatatan').value.trim();
 
-  if (jenis === 'Transfer' && dompet === dompet_tujuan) {
-    showToast('Dompet asal dan tujuan tidak boleh sama!');
+  if (!nominal || nominal <= 0) {
+    showToast('Masukkan nominal yang valid!');
     return;
   }
 
   if (editId) {
     const idx = dataKeuangan.findIndex(k => k.id === editId);
-    if (idx > -1) dataKeuangan[idx] = { ...dataKeuangan[idx], tanggal, jenis, kategori, nominal, catatan, dompet, dompet_tujuan, isSynced: false };
+    if (idx !== -1) {
+      dataKeuangan[idx] = {
+        ...dataKeuangan[idx],
+        jenis,
+        nominal,
+        tanggal,
+        akun: document.getElementById('txAkun').value,
+        kategori: document.getElementById('txKategori').value,
+        catatan,
+        updatedAt: new Date().toISOString(),
+        isSynced: false
+      };
+    }
     showToast('Transaksi diperbarui!');
+  } else if (jenis === 'Transfer') {
+    const dari = document.getElementById('txDariAkun').value;
+    const ke = document.getElementById('txKeAkun').value;
+    if (dari === ke) {
+      showToast('Akun asal dan tujuan tidak boleh sama!');
+      return;
+    }
+    const baseId = Date.now();
+    const note = catatan || `Transfer ${dari} ke ${ke}`;
+    dataKeuangan.unshift(
+      { id: `tx-${baseId}-out`, tanggal, jenis: 'Pengeluaran', kategori: 'Transfer Keluar', akun: dari, nominal, catatan: note, updatedAt: new Date().toISOString(), isSynced: false },
+      { id: `tx-${baseId}-in`, tanggal, jenis: 'Pemasukan', kategori: 'Transfer Masuk', akun: ke, nominal, catatan: note, updatedAt: new Date().toISOString(), isSynced: false }
+    );
+    showToast(`Transfer ${formatRupiah(nominal)} (${dari} → ${ke}) berhasil!`);
   } else {
-    dataKeuangan.unshift({ id: 'trx-' + Date.now(), tanggal, jenis, kategori, nominal, catatan, dompet, dompet_tujuan, isSynced: false });
-    showToast(jenis === 'Transfer' ? 'Mutasi dompet tercatat!' : 'Transaksi disimpan!');
+    dataKeuangan.unshift({
+      id: 'tx-' + Date.now(),
+      tanggal,
+      jenis,
+      kategori: document.getElementById('txKategori').value,
+      akun: document.getElementById('txAkun').value,
+      nominal,
+      catatan,
+      updatedAt: new Date().toISOString(),
+      isSynced: false
+    });
+    showToast(`${jenis} ${formatRupiah(nominal)} dicatat!`);
   }
-  closeModal('modal-uang');
+
+  closeModal('modal-transaksi');
   saveLocal();
 }
 
-function hapusKeuangan(id) {
+function editTransaksi(id) {
+  const tx = dataKeuangan.find(k => k.id === id);
+  if (!tx) return;
+  document.getElementById('txEditId').value = tx.id;
+  setJenisTransaksi(tx.jenis);
+  document.getElementById('txNominal').value = tx.nominal;
+  document.getElementById('txTanggal').value = normalizeDateStr(tx.tanggal);
+  document.getElementById('txAkun').value = tx.akun;
+  document.getElementById('txKategori').value = tx.kategori;
+  document.getElementById('txCatatan').value = tx.catatan || '';
+  document.getElementById('modal-transaksi').classList.remove('hidden');
+}
+
+function hapusTransaksi(id) {
   if (!confirm('Hapus transaksi ini?')) return;
   dataKeuangan = dataKeuangan.filter(k => k.id !== id);
   deletedKeuangan.push(id);
   saveLocal();
-  showToast('Transaksi dihapus');
+  showToast('Transaksi dihapus.');
 }
 
-// --- SPLIT BILL / PIUTANG TEMAN ---
-function openPiutangModal() { document.getElementById('modal-piutang').classList.remove('hidden'); }
+function jalankanQuickCommand(e) {
+  e.preventDefault();
+  const input = document.getElementById('quickCmdInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+
+  const lower = raw.toLowerCase();
+  const numMatch = lower.match(/(\d+(?:[.,]\d+)?)\s*(rb|ribu|k|jt|juta)?/);
+  if (!numMatch) {
+    showToast('Format: "makan 15rb tunai" atau "uang saku 100rb bank"');
+    return;
+  }
+
+  let nominal = parseFloat(numMatch[1].replace(',', '.'));
+  const unit = numMatch[2] || '';
+  if (unit === 'rb' || unit === 'ribu' || unit === 'k') nominal *= 1000;
+  else if (unit === 'jt' || unit === 'juta') nominal *= 1000000;
+  nominal = Math.round(nominal);
+
+  const isIncome = /(masuk|gaji|saku|dapat|bonus|transfer masuk|fee)/.test(lower);
+  const jenis = isIncome ? 'Pemasukan' : 'Pengeluaran';
+
+  let akun = 'Tunai';
+  if (/(bank|bca|bni|bri|mandiri|qris|tf|rekening)/.test(lower)) akun = 'Bank';
+  else if (/(ewallet|e-wallet|dana|ovo|gopay|shopeepay|spay)/.test(lower)) akun = 'E-Wallet';
+
+  let kategori = isIncome ? 'Uang Saku / Pemasukan' : 'Makan & Minum';
+  if (!isIncome) {
+    if (/(bensin|pertalite|pertamax|parkir|gojek|grab|ojek|kereta|bus|transport)/.test(lower)) kategori = 'Transport / Bensin';
+    else if (/(print|fotokopi|buku|kuliah|kuota|internet|pulsa)/.test(lower)) kategori = 'Kuliah & Akademik';
+    else if (/(kopi|jajan|batagor|rokok|nonton|game|hiburan)/.test(lower)) kategori = 'Jajan / Hiburan';
+    else if (/(nabung|tabungan)/.test(lower)) kategori = 'Tabungan';
+  }
+
+  const cleanNote = raw.replace(numMatch[0], '').replace(/\b(tunai|cash|bank|ewallet|e-wallet|dana|ovo|gopay)\b/gi, '').trim() || raw;
+
+  dataKeuangan.unshift({
+    id: 'tx-' + Date.now(),
+    tanggal: getTodayDateStr(),
+    jenis,
+    kategori,
+    akun,
+    nominal,
+    catatan: cleanNote.charAt(0).toUpperCase() + cleanNote.slice(1),
+    updatedAt: new Date().toISOString(),
+    isSynced: false
+  });
+
+  input.value = '';
+  saveLocal();
+  showToast(`⚡ ${jenis}: ${formatRupiah(nominal)} (${akun})`);
+}
+
+// ==========================================
+// GOAL TABUNGAN & PIUTANG / SPLIT BILL
+// ==========================================
+function openGoalModal() {
+  document.getElementById('goalNamaInput').value = namaTabungan;
+  document.getElementById('goalTargetInput').value = targetTabungan;
+  document.getElementById('modal-goal').classList.remove('hidden');
+}
+
+function simpanGoal(e) {
+  e.preventDefault();
+  namaTabungan = document.getElementById('goalNamaInput').value.trim() || 'Tabungan Utama';
+  targetTabungan = Number(document.getElementById('goalTargetInput').value) || 1000000;
+  localStorage.setItem('ezar_goal_nama', namaTabungan);
+  localStorage.setItem('ezar_goal_target', targetTabungan);
+  closeModal('modal-goal');
+  renderKeuangan();
+  showToast('Target tabungan diperbarui!');
+}
+
+function simpanBudgetBulanan(e) {
+  e.preventDefault();
+  budgetBulanan = Number(document.getElementById('inputBudgetBulanan').value) || 1000000;
+  localStorage.setItem('ezar_budget_bulanan', budgetBulanan);
+  renderKeuangan();
+  showToast('Target budget bulanan disimpan!');
+}
+
+function openPiutangModal() {
+  document.getElementById('modal-piutang').classList.remove('hidden');
+}
+
 function simpanPiutang(e) {
   e.preventDefault();
   dataPiutang.unshift({
-    id: 'piu-' + Date.now(),
-    nama: document.getElementById('piutangNama').value.trim(),
-    keterangan: document.getElementById('piutangKet').value.trim(),
-    nominal: Number(document.getElementById('piutangNominal').value),
-    dompet: document.getElementById('piutangDompet').value,
+    id: 'ptg-' + Date.now(),
+    nama: document.getElementById('ptgNama').value.trim(),
+    keterangan: document.getElementById('ptgKet').value.trim() || 'Patungan / Talangan',
+    nominal: Number(document.getElementById('ptgNominal').value) || 0,
+    tipe: document.getElementById('ptgTipe').value,
     status: 'Belum Lunas',
-    tanggal: new Date().toISOString().split('T')[0],
+    tanggal: getTodayDateStr(),
     isSynced: false
   });
   e.target.reset();
   closeModal('modal-piutang');
   saveLocal();
-  showToast('Catatan piutang / split bill disimpan!');
+  showToast('Catatan Split Bill / Piutang disimpan!');
 }
 
 function lunasiPiutang(id) {
-  const p = dataPiutang.find(item => item.id === id);
-  if (!p || p.status === 'Lunas') return;
-  if (!confirm(`Tandai piutang ${p.nama} (${formatRupiah(p.nominal)}) sudah LUNAS dan masukkan ke saldo ${p.dompet}?`)) return;
-  p.status = 'Lunas';
-  p.isSynced = false;
-  dataKeuangan.unshift({
-    id: 'trx-' + Date.now(),
-    tanggal: new Date().toISOString().split('T')[0],
-    jenis: 'Pemasukan',
-    kategori: 'Pelunasan Split Bill',
-    nominal: p.nominal,
-    catatan: `Pelunasan ${p.nama} (${p.keterangan})`,
-    dompet: p.dompet || 'Tunai',
-    dompet_tujuan: '',
-    isSynced: false
-  });
+  const item = dataPiutang.find(p => p.id === id);
+  if (!item) return;
+  item.status = 'Lunas';
+  item.isSynced = false;
   saveLocal();
-  showToast(`✅ Lunas! +${formatRupiah(p.nominal)} masuk ke ${p.dompet}`);
+  showToast(`Catatan dengan ${item.nama} ditandai Lunas!`);
 }
 
 function hapusPiutang(id) {
-  if (!confirm('Hapus catatan piutang ini?')) return;
+  if (!confirm('Hapus catatan piutang/hutang ini?')) return;
   dataPiutang = dataPiutang.filter(p => p.id !== id);
   deletedPiutang.push(id);
   saveLocal();
 }
 
-function renderPiutang() {
-  const activeList = dataPiutang.filter(p => p.status !== 'Lunas');
-  const totalPiutang = activeList.reduce((s, p) => s + p.nominal, 0);
-  document.getElementById('totalPiutangBadge').textContent = formatRupiah(totalPiutang);
+function renderKeuangan() {
+  let saldoTunai = 0, saldoBank = 0, saldoEwallet = 0, brankas = 0;
+  const bulanIni = getTodayDateStr().slice(0, 7);
+  let keluarBulanIni = 0;
 
-  document.getElementById('piutangList').innerHTML = dataPiutang.length
-    ? dataPiutang.map(p => `
-      <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl flex items-center justify-between gap-2">
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1.5">
-            <span class="font-bold text-xs truncate">${p.nama}</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${p.status === 'Lunas' ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-500'}">${p.status}</span>
-          </div>
-          <p class="text-[10px] text-slate-500 truncate">${p.keterangan} • Masuk ke ${p.dompet}</p>
-        </div>
-        <div class="text-right shrink-0 flex items-center gap-1.5">
-          <span class="font-extrabold text-xs sensitive-val">${formatRupiah(p.nominal)}</span>
-          ${p.status !== 'Lunas' ? `<button onclick="lunasiPiutang('${p.id}')" class="px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-lg">Lunas</button>` : ''}
-          <button onclick="hapusPiutang('${p.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
-        </div>
-      </div>`).join('')
-    : `<p class="text-[11px] text-slate-400 text-center py-2">Tidak ada catatan split bill / piutang.</p>`;
-}
+  dataKeuangan.forEach(tx => {
+    const nom = Number(tx.nominal) || 0;
+    const isTabungan = tx.kategori === 'Tabungan';
+    if (isTabungan) {
+      brankas += tx.jenis === 'Pemasukan' ? nom : -nom;
+    } else if (tx.jenis === 'Pemasukan') {
+      if (tx.akun === 'Tunai') saldoTunai += nom;
+      else if (tx.akun === 'Bank') saldoBank += nom;
+      else saldoEwallet += nom;
+    } else {
+      if (tx.akun === 'Tunai') saldoTunai -= nom;
+      else if (tx.akun === 'Bank') saldoBank -= nom;
+      else saldoEwallet -= nom;
 
-// --- GOALS ---
-function openGoalModal() { document.getElementById('modal-goal').classList.remove('hidden'); }
-function simpanGoal(e) {
-  e.preventDefault();
-  dataGoals.push({
-    id: 'gol-' + Date.now(),
-    nama_goal: document.getElementById('goalNama').value.trim(),
-    target: Number(document.getElementById('goalTarget').value),
-    terkumpul: Number(document.getElementById('goalAwal').value) || 0,
-    isSynced: false
-  });
-  e.target.reset();
-  closeModal('modal-goal');
-  saveLocal();
-  showToast('Target celengan dibuat!');
-}
-function tambahDanaGoal(id) {
-  const nom = Number(prompt('Masukkan nominal tabungan (Rp):'));
-  if (!nom || nom <= 0) return;
-  const g = dataGoals.find(item => item.id === id);
-  if (g) {
-    g.terkumpul += nom; g.isSynced = false;
-    if (g.terkumpul >= g.target && typeof confetti === 'function') {
-      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-      showToast('🎉 Selamat! Target celengan tercapai!');
-    } else showToast(`+${formatRupiah(nom)} masuk ke ${g.nama_goal}!`);
-    saveLocal();
-  }
-}
-function hapusGoal(id) {
-  if (!confirm('Hapus target celengan ini?')) return;
-  dataGoals = dataGoals.filter(g => g.id !== id);
-  deletedGoals.push(id);
-  saveLocal();
-}
-
-function renderGoals() {
-  document.getElementById('goalsList').innerHTML = dataGoals.length
-    ? dataGoals.map(g => {
-      const pct = Math.min(100, Math.round((g.terkumpul / g.target) * 100));
-      return `
-        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-1.5">
-          <div class="flex justify-between items-center text-xs">
-            <span class="font-bold">${g.nama_goal}</span>
-            <div class="flex items-center gap-2">
-              <button onclick="tambahDanaGoal('${g.id}')" class="px-2 py-0.5 bg-amber-500 text-slate-950 font-extrabold rounded-md text-[10px]">+ Nabung</button>
-              <button onclick="hapusGoal('${g.id}')" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
-            </div>
-          </div>
-          <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width:${pct}%"></div>
-          </div>
-          <div class="flex justify-between text-[10px] text-slate-500">
-            <span class="sensitive-val">${formatRupiah(g.terkumpul)} / ${formatRupiah(g.target)}</span>
-            <span class="font-bold text-amber-600 dark:text-amber-400">${pct}%</span>
-          </div>
-        </div>`;
-    }).join('')
-    : `<p class="text-[11px] text-slate-400 text-center py-2">Belum ada target tabungan.</p>`;
-}
-
-function renderCharts(bulanStr) {
-  const filteredExp = dataKeuangan.filter(k => k.jenis === 'Pengeluaran' && k.kategori !== 'Tabungan' && k.tanggal.startsWith(bulanStr));
-  const catTotals = {};
-  filteredExp.forEach(k => { catTotals[k.kategori] = (catTotals[k.kategori] || 0) + k.nominal; });
-  const labels = Object.keys(catTotals), values = Object.values(catTotals);
-  const noDataEl = document.getElementById('noChartData');
-
-  if (expenseChartInstance) expenseChartInstance.destroy();
-  if (labels.length === 0) noDataEl.classList.remove('hidden');
-  else {
-    noDataEl.classList.add('hidden');
-    expenseChartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
-      type: 'doughnut',
-      data: { labels, datasets: [{ data: values, backgroundColor: ['#6366f1', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#64748b'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } } } }
-    });
-  }
-
-  const now = new Date();
-  const months = [];
-  for (let i = 5; i >= 0; i--) {
-    months.push(new Date(now.getFullYear(), now.getMonth() - i, 1).toISOString().slice(0, 7));
-  }
-  const masukSeries = months.map(m => dataKeuangan.filter(k => k.tanggal.startsWith(m) && k.jenis === 'Pemasukan').reduce((s, k) => s + k.nominal, 0));
-  const keluarSeries = months.map(m => dataKeuangan.filter(k => k.tanggal.startsWith(m) && k.jenis === 'Pengeluaran' && k.kategori !== 'Tabungan').reduce((s, k) => s + k.nominal, 0));
-
-  if (trendChartInstance) trendChartInstance.destroy();
-  trendChartInstance = new Chart(document.getElementById('trendChart').getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels: months.map(m => m.slice(5)),
-      datasets: [
-        { label: 'Masuk', data: masukSeries, backgroundColor: '#10b981', borderRadius: 4 },
-        { label: 'Keluar', data: keluarSeries, backgroundColor: '#f43f5e', borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } } },
-      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } }, y: { display: false } }
+      if (normalizeDateStr(tx.tanggal).startsWith(bulanIni) && tx.kategori !== 'Transfer Keluar') {
+        keluarBulanIni += nom;
+      }
     }
   });
-}
 
-function renderKeuanganList() {
-  const bulanStr = document.getElementById('filterBulan').value;
-  const query = document.getElementById('searchUang').value.toLowerCase();
-  const filtered = dataKeuangan.filter(k =>
-    (!bulanStr || k.tanggal.startsWith(bulanStr)) &&
-    (k.kategori.toLowerCase().includes(query) || k.catatan.toLowerCase().includes(query) || (k.dompet || '').toLowerCase().includes(query))
-  );
+  const totalAktif = saldoTunai + saldoBank + saldoEwallet;
+  const mask = (val) => hideSaldo ? 'Rp ••••••' : formatRupiah(val);
 
-  document.getElementById('keuanganList').innerHTML = filtered.length
-    ? filtered.map(k => {
-      const isTransfer = k.jenis === 'Transfer';
-      const badgeText = isTransfer ? `${k.dompet} → ${k.dompet_tujuan}` : (k.dompet || 'Tunai');
-      const colorClass = isTransfer ? 'text-sky-500' : (k.kategori === 'Tabungan' ? 'text-amber-500' : (k.jenis === 'Pemasukan' ? 'text-emerald-500' : 'text-rose-500'));
-      const prefix = isTransfer ? '⇄ ' : (k.jenis === 'Pemasukan' ? '+' : '-');
-      return `
-        <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between gap-2">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="text-xs font-extrabold truncate">${k.kategori}</span>
-              <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">${badgeText}</span>
-              ${k.isSynced ? '<i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>' : '<i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>'}
+  document.getElementById('totalSaldoAktif').textContent = mask(totalAktif);
+  document.getElementById('saldoBrankas').textContent = mask(brankas);
+  document.getElementById('saldoTunai').textContent = mask(saldoTunai);
+  document.getElementById('saldoBank').textContent = mask(saldoBank);
+  document.getElementById('saldoEwallet').textContent = mask(saldoEwallet);
+
+  // Budget Progress Home
+  const pctBudget = Math.min(100, Math.round((keluarBulanIni / (budgetBulanan || 1)) * 100));
+  document.getElementById('budgetSummaryText').textContent = `${formatRupiah(keluarBulanIni)} / ${formatRupiah(budgetBulanan)}`;
+  const barBudget = document.getElementById('budgetProgressBar');
+  if (barBudget) {
+    barBudget.style.width = pctBudget + '%';
+    barBudget.className = `h-2.5 rounded-full transition-all duration-500 ${pctBudget >= 85 ? 'bg-rose-500' : pctBudget >= 60 ? 'bg-amber-500' : 'bg-indigo-600'}`;
+  }
+
+  // Goal Progress
+  const goalPct = Math.min(100, Math.round((brankas / (targetTabungan || 1)) * 100));
+  const goalTitle = document.getElementById('goalTitleDisplay');
+  if (goalTitle) {
+    goalTitle.textContent = namaTabungan;
+    document.getElementById('goalNominalDisplay').textContent = `${formatRupiah(brankas)} / ${formatRupiah(targetTabungan)} (${goalPct}%)`;
+    document.getElementById('goalProgressBar').style.width = goalPct + '%';
+  }
+
+  // Split Bill / Piutang List
+  const ptgContainer = document.getElementById('piutangList');
+  if (ptgContainer) {
+    ptgContainer.innerHTML = dataPiutang.length
+      ? dataPiutang.map(p => {
+        const isPiutang = p.tipe === 'Piutang';
+        const lunas = p.status === 'Lunas';
+        return `
+          <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 ${lunas ? 'opacity-60' : ''}">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isPiutang ? 'bg-emerald-500/15 text-emerald-600' : 'bg-rose-500/15 text-rose-500'}">${isPiutang ? 'Piutang (Teman Hutang)' : 'Hutang Saya'}</span>
+                <span class="text-[10px] text-slate-400">${formatDisplayDate(p.tanggal)}</span>
+              </div>
+              <p class="font-extrabold text-xs mt-1 truncate">${p.nama} • ${formatRupiah(p.nominal)}</p>
+              <p class="text-[10px] text-slate-400 truncate">${p.keterangan}</p>
             </div>
-            <p class="text-[11px] text-slate-500 truncate mt-0.5">${k.catatan} • ${k.tanggal}</p>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="font-extrabold text-xs block sensitive-val ${colorClass}">${prefix}${formatRupiah(k.nominal)}</span>
-            <div class="flex justify-end gap-2 mt-1 text-slate-400">
-              <button onclick="openUangModal('${k.id}')" class="hover:text-indigo-500"><i data-lucide="pencil" class="w-3 h-3"></i></button>
-              <button onclick="hapusKeuangan('${k.id}')" class="hover:text-rose-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+            <div class="flex items-center gap-1 shrink-0">
+              ${!lunas ? `<button onclick="lunasiPiutang('${p.id}')" class="px-2.5 py-1 bg-indigo-600 text-white text-[10px] font-bold rounded-xl">Lunasi</button>` : `<span class="text-[10px] font-bold text-emerald-500 px-2">✓ Lunas</span>`}
+              <button onclick="hapusPiutang('${p.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
-          </div>
-        </div>`;
-    }).join('')
-    : `<div class="text-center py-8 text-xs text-slate-400">Tidak ada transaksi pada periode ini.</div>`;
-  applyPrivacyState();
-  lucide.createIcons();
+          </div>`;
+      }).join('')
+      : `<div class="text-center py-3 text-xs text-slate-400">Belum ada catatan patungan / hutang-piutang.</div>`;
+  }
+
+  // Transaction History List
+  const filtered = dataKeuangan.filter(tx => {
+    const matchTipe = filterTipeKeu === 'ALL' || tx.jenis === filterTipeKeu;
+    const matchAkun = filterAkunKeu === 'ALL' || tx.akun === filterAkunKeu;
+    return matchTipe && matchAkun;
+  });
+
+  const txContainer = document.getElementById('transaksiList');
+  if (txContainer) {
+    txContainer.innerHTML = filtered.length
+      ? filtered.map(tx => {
+        const isInc = tx.jenis === 'Pemasukan';
+        const isTab = tx.kategori === 'Tabungan';
+        const colorClass = isTab ? 'text-amber-500' : isInc ? 'text-emerald-500' : 'text-rose-500';
+        const sign = isInc ? '+' : '-';
+        const cleanDate = formatDisplayDate(tx.tanggal);
+        return `
+          <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="font-extrabold text-xs truncate">${tx.kategori}</h4>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500">${tx.akun}</span>
+                <i data-lucide="${tx.isSynced ? 'cloud-check' : 'cloud-off'}" class="w-3.5 h-3.5 ${tx.isSynced ? 'text-emerald-500' : 'text-amber-500'}"></i>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5 truncate">${tx.catatan || '-'} • ${cleanDate}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <p class="font-extrabold text-xs ${colorClass}">${sign}${formatRupiah(tx.nominal)}</p>
+              <div class="flex items-center justify-end gap-1.5 mt-1">
+                <button onclick="editTransaksi('${tx.id}')" class="text-slate-400 hover:text-indigo-500"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                <button onclick="hapusTransaksi('${tx.id}')" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+          </div>`;
+      }).join('')
+      : `<div class="text-center py-6 text-xs text-slate-400">Belum ada riwayat transaksi pada filter ini.</div>`;
+  }
 }

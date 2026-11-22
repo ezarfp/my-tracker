@@ -3,7 +3,7 @@ function openRutinitasModal() { document.getElementById('modal-rutinitas').class
 function simpanRutinitas(e) {
   e.preventDefault();
   const siklus = Number(document.getElementById('rutinSiklus').value) || 7;
-  const mulai = document.getElementById('rutinMulai').value || new Date().toISOString().split('T')[0];
+  const mulai = normalizeDateStr(document.getElementById('rutinMulai').value || getTodayDateStr());
   dataRutinitas.push({
     id: 'rut-' + Date.now(),
     nama: document.getElementById('rutinNama').value.trim(),
@@ -23,17 +23,18 @@ function simpanRutinitas(e) {
 function selesaikanRutinitas(id) {
   const r = dataRutinitas.find(item => item.id === id);
   if (!r) return;
-  const todayStr = new Date().toISOString().split('T')[0];
-  const nextDate = new Date();
+  const todayStr = getTodayDateStr();
+  const nextDate = new Date(todayStr);
   nextDate.setDate(nextDate.getDate() + Number(r.siklus_hari));
+  const nextStr = nextDate.toISOString().split('T')[0];
 
   r.streak = (r.streak || 0) + 1;
   r.terakhir_selesai = todayStr;
-  r.jadwal_berikutnya = nextDate.toISOString().split('T')[0];
+  r.jadwal_berikutnya = nextStr;
   r.isSynced = false;
   saveLocal();
   if (typeof confetti === 'function') confetti({ particleCount: 60, spread: 55, origin: { y: 0.7 } });
-  showToast(`🔥 Streak ${r.nama}: ${r.streak}x! Berikutnya: ${r.jadwal_berikutnya}`);
+  showToast(`🔥 Streak ${r.nama}: ${r.streak}x! Berikutnya: ${formatDisplayDate(nextStr)}`);
 }
 
 function hapusRutinitas(id) {
@@ -44,21 +45,26 @@ function hapusRutinitas(id) {
 }
 
 function renderRutinitas() {
-  const today = new Date();
-  document.getElementById('rutinitasList').innerHTML = dataRutinitas.length
+  const today = new Date(getTodayDateStr());
+  const container = document.getElementById('rutinitasList');
+  if (!container) return;
+
+  container.innerHTML = dataRutinitas.length
     ? dataRutinitas.map(r => {
-      const diff = Math.ceil((new Date(r.jadwal_berikutnya) - today) / 86400000);
-      const dueLabel = diff <= 0 ? 'Waktunya Eksekusi!' : `${diff} hari lagi (${r.jadwal_berikutnya})`;
+      const cleanNext = normalizeDateStr(r.jadwal_berikutnya);
+      const diff = Math.ceil((new Date(cleanNext) - today) / 86400000);
+      const dueLabel = diff <= 0 ? 'Waktunya Eksekusi!' : `${diff} hari lagi (${formatDisplayDate(cleanNext)})`;
       const dueClass = diff <= 0 ? 'bg-amber-500 text-slate-950' : 'bg-indigo-500/10 text-indigo-500';
+      const lastDone = r.terakhir_selesai && r.terakhir_selesai !== '-' ? formatDisplayDate(r.terakhir_selesai) : '-';
       return `
         <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-500">🔥 ${r.streak || 0} Streak</span>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${dueClass}">${dueLabel}</span>
             </div>
             <h4 class="font-extrabold text-xs mt-1 truncate">${r.nama}</h4>
-            <p class="text-[10px] text-slate-400">Siklus: tiap ${r.siklus_hari} hari • Terakhir: ${r.terakhir_selesai}</p>
+            <p class="text-[10px] text-slate-400">Siklus: tiap ${r.siklus_hari} hari • Terakhir: ${lastDone}</p>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <button onclick="selesaikanRutinitas('${r.id}')" class="px-2.5 py-1.5 bg-emerald-600 text-white text-[10px] font-bold rounded-xl active:scale-90 transition">✓ Selesai</button>
